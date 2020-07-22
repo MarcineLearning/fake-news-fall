@@ -216,12 +216,6 @@ for f in features:
             prediction = model.predict(transformed)
 
             scores = model_selection.cross_val_score(model, transformed, news.target, cv=3, verbose=10)
-            #print(scores)
-
-            #print(accuracy_score(y_test, prediction)*100)
-            #print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-            #print(classification_report(y_test, prediction))
-
 
             
             print("RealOrFake Dataset accuracy: {}%".format(round(accuracy_score(fake_true_test.target, prediction_fake_true)*100,2)))
