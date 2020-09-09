@@ -1,0 +1,29 @@
+==================================================
+Dataset numero 0
+** Initial ** Dataframe Size: 
+(44898, 5)
+==================================================
+**After Preprocessing** Dataframe Size: 
+(43950, 5)
+==================================================
+Class Population: 
+Real (True) News Samples: 21416 / 43950
+Fake News Samples: 22534 / 43950
+Word2Vec Building Vocabulary...
+Word2Vec Training Embedding Model...
+Word2Vec Dictionary Current Length: 11484
+==================================================
+Dataset numero 1
+** Initial ** Dataframe Size: 
+(6335, 5)
+==================================================
+**After Preprocessing** Dataframe Size: 
+(6234, 5)
+==================================================
+Class Population: 
+Real (True) News Samples: 3125 / 6234
+Fake News Samples: 3109 / 6234
+Word2Vec Building Vocabulary...
+Word2Vec Training Embedding Model...
+Word2Vec Dictionary Current Length: 11630
+Word2Vec Word Embedding Training Ended. 
