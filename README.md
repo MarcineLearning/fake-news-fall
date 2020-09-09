@@ -6,5 +6,7 @@ The training relies on two different datasets found on Kaggle.
 
 The classifiers we implemented, trained, and tested, are the following:
   - SVM (linear/non-linear kernels)
-  - Linear Regression
-  - Deep Learning (Deep FeedForward, Convolutional, Recurrent)
+  - Logistic Regression
+  - KNN
+  - Naive Bayes (Bernoulli)
+  - Deep Learning (FeedForward, Convolutional)
