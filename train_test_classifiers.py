@@ -1,17 +1,10 @@
-#Pandas
-import pandas as pd
-#Numpy
 import numpy as np
-#Seaborn
-import seaborn as sns
-#Matplotlib
 import matplotlib.pyplot as plt
-#SKLEARN
 
 from sklearn import feature_extraction, linear_model, model_selection, preprocessing
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import BernoulliNB
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, confusion_matrix,classification_report
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.metrics import roc_curve, auc
@@ -24,79 +17,102 @@ from utilities import text
 from utilities import report
 
 EMBEDDING_DIM=300
-VALIDATION_SPLIT = 0.2
+VALIDATION_SPLIT = 0.1
 MAX_LENGTH = 500
 
 dataset=2
 max_samples='NO'
-max_samples=500
 cv_splits = 5
-#KNN, SVM, LINEAR-SVM, LOG-REG, BERNOULLI
-model_type='BERNOULLI'
-embedding_type='glove'
-w2v_model=0  
+model_type_list=["KNN", "SVM", "LINEAR-SVM", 
+"LOG-REG", "BAYES"]
 
-news = text.get_default_dataset(dataset, max_samples)
-news, documents = text.preprocess_documents(news)
+embedding_type_list=["w2v", "glove", "tfidf-transformer"]
 
-if(embedding_type=="w2v" or embedding_type=="glove"):
-    if(embedding_type=="w2v"):
-        w2v_model = w2v.load_saved_embedding()
-    tokenized_words, encoded_docs = text.tokenize_encode_documents(
-    embedding_type, model_type, w2v_model, documents, 
-    MAX_LENGTH, EMBEDDING_DIM)
+total_iterations=len(model_type_list)*len(embedding_type_list)
+it_counter=1
+for model_type in model_type_list:
+    for embedding_type in embedding_type_list:
+        w2v_model=0  
+        print("="*50)
+        print("iteration "+str(it_counter)+" of "+str(total_iterations))
+        news = text.get_default_dataset(dataset, max_samples)
+        news, documents = text.preprocess_documents(news)
+    
+        print("="*50)
+        print("Model: "+model_type)
+        print("Embedding/Features: "+embedding_type)
+        print("Dataset: "+str(dataset))
+        print("Samples: "+str(len(documents)))
+        print("="*50)
 
-if(embedding_type=="tfidf-transformer"):    
-    tokenized_words, encoded_docs = text.vectorize_transform_documents(news['text'])
+        if(embedding_type=="w2v" or embedding_type=="glove"):
+            if(embedding_type=="w2v"):
+                w2v_model = w2v.load_saved_embedding()
+            tokenized_words, encoded_docs = text.tokenize_encode_documents(
+            embedding_type, model_type, w2v_model, documents, 
+            MAX_LENGTH, EMBEDDING_DIM)
 
-test_samples = int(VALIDATION_SPLIT * np.shape(encoded_docs)[0])
-x_train = encoded_docs[:-test_samples]
-y_train = news['target'][:-test_samples]
-x_test = encoded_docs[-test_samples:]
-y_test = news['target'][-test_samples:]
+        if(embedding_type=="tfidf-transformer"):    
+            tokenized_words, encoded_docs = text.vectorize_transform_documents(news['text'])
 
-print("="*50)
-print("Model: "+model_type)
-print("Embedding/Features: "+embedding_type)
-print("Dataset: "+str(dataset))
-print("Samples: "+str(np.shape(encoded_docs)[1]))
-print("="*50)
+        test_samples = int(VALIDATION_SPLIT * np.shape(encoded_docs)[0])
+        x_train = encoded_docs[:-test_samples]
+        y_train = news['target'][:-test_samples]
+        x_test = encoded_docs[-test_samples:]
+        y_test = news['target'][-test_samples:]
 
-if(model_type =="LINEAR-SVM"):
-    kernel='linear'
-    model = SVC(kernel=kernel, C=10.0, gamma=1.0)
-if(model_type =="SVM"):
-    kernel='rbf'
-    model = SVC(kernel=kernel, C=10.0, gamma=1.0)
-if(model_type =="KNN"):
-    model = KNeighborsClassifier(n_neighbors=10)
-if(model_type =="LOG-REG"):
-    model = linear_model.LogisticRegression(solver = 'saga', 
-    class_weight='balanced', 
-    penalty='none',
-    max_iter=1500)
-if(model_type =="BERNOULLI"):
-    model = BernoulliNB()
+        if(model_type =="LINEAR-SVM"):
+            kernel='linear'
+            model = SVC(kernel=kernel, C=10.0, gamma=1.0)
+        if(model_type =="SVM"):
+            kernel='rbf'
+            model = SVC(kernel=kernel, C=10.0, gamma=1.0)
+        if(model_type =="KNN"):
+            model = KNeighborsClassifier(n_neighbors=10)
+        if(model_type =="LOG-REG"):
+            model = linear_model.LogisticRegression(solver = 'saga', 
+            class_weight='balanced', 
+            penalty='none',
+            max_iter=2000)
+        if(model_type =="BAYES"):
+            model = MultinomialNB()
 
-model.fit(x_train, y_train)
+        model.fit(x_train, y_train)
 
-scores = model_selection.cross_val_score(model, x_train, y_train, cv=cv_splits, verbose=10)
-print("Cross Validation Scores: ")
-print(scores)
+        scores = model_selection.cross_validate(model, x_train, y_train, 
+            cv=cv_splits, verbose=1,
+            scoring=('precision', 'recall', 'f1',  'accuracy'),
+            return_train_score=True)
+        print("Cross Validation Scores: ")
+        metric_list = sorted(scores.keys())
+        for m in metric_list:
+            print("=>"+m)
+            print(scores[m])
 
-prediction = model.predict(x_test)
+        prediction = model.predict(x_test)
 
-fpr, tpr, thresholds = roc_curve(y_test, prediction)
-auc = auc(fpr, tpr)
+        fpr, tpr, thresholds = roc_curve(y_test, prediction)
+        area_auc = auc(fpr, tpr)
 
-print("Test Accuracy: ")
-print(accuracy_score(y_test, prediction)*100)
-print("="*50)
-print("==== Classification Report ====")
-print(classification_report(y_test, prediction))
-print("="*50)   
-print("Confusion Matrix: ")
-print(confusion_matrix(y_test, prediction))
-print("="*50)
-print("="*50)   
+        plt.plot(fpr, tpr, color='darkorange', label='ROC curve (area = %0.2f)' % area_auc)
+        plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('ROC '+str(model_type))
+        plt.legend(loc="lower right")
+        plt.savefig('output/roc_'+str(model_type)+'_'+str(embedding_type)+'_ds'+str(dataset)+'.png')
+        plt.close()
 
+        print("Test Accuracy: ")
+        print(accuracy_score(y_test, prediction)*100)
+        print("="*50)
+        print("==== Classification Report ===========================")
+        print(classification_report(y_test, prediction, labels=[0, 1]))
+        print("="*50)   
+        print("Confusion Matrix: ")
+        print(confusion_matrix(y_test, prediction))
+        print("="*50)
+        print("="*50)   
+        it_counter+=1
