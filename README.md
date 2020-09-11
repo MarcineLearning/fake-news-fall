@@ -8,5 +8,4 @@ The classifiers we implemented, trained, and tested, are the following:
   - SVM (linear/non-linear kernels)
   - Logistic Regression
   - KNN
-  - Naive Bayes (Bernoulli)
   - Deep Learning (FeedForward, Convolutional)
