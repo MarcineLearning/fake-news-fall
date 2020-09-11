@@ -80,7 +80,7 @@ def tokenize_encode_documents(embedding_type, network_arch, word2vec_m,
     documents, max_length, embedding_dim):
     if(network_arch in ['LSTM', 'CNN']):
         return tokenize_encode_pad_documents(documents, max_length)
-    if(network_arch in ["DAN", "KNN", "SVM", "LINEAR-SVM", "LOG-REG", "BAYES"]):
+    if(network_arch in ["DAN", "KNN", "SVM", "LINEAR-SVM", "LOG-REG"]):
        return [], compute_averaged_doc_vectors(embedding_type, documents, 
         word2vec_m, embedding_dim)
 
@@ -165,6 +165,7 @@ def get_default_dataset(dataset, max_samples):
         news = real_or_fake
     
     if(max_samples != 'NO'):
+            news = news.sample(frac=1)
             news=news[:max_samples]
     return news
 

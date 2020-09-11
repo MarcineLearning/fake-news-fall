@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from sklearn import feature_extraction, linear_model, model_selection, preprocessing
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, confusion_matrix,classification_report
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.metrics import roc_curve, auc
@@ -20,13 +19,16 @@ EMBEDDING_DIM=300
 VALIDATION_SPLIT = 0.1
 MAX_LENGTH = 500
 
-dataset=2
+dataset=1
 max_samples='NO'
+max_samples=6500
 cv_splits = 5
 model_type_list=["KNN", "SVM", "LINEAR-SVM", 
-"LOG-REG", "BAYES"]
-
+"LOG-REG"]
 embedding_type_list=["w2v", "glove", "tfidf-transformer"]
+
+news = text.get_default_dataset(dataset, max_samples)
+news, documents = text.preprocess_documents(news)
 
 total_iterations=len(model_type_list)*len(embedding_type_list)
 it_counter=1
@@ -35,9 +37,6 @@ for model_type in model_type_list:
         w2v_model=0  
         print("="*50)
         print("iteration "+str(it_counter)+" of "+str(total_iterations))
-        news = text.get_default_dataset(dataset, max_samples)
-        news, documents = text.preprocess_documents(news)
-    
         print("="*50)
         print("Model: "+model_type)
         print("Embedding/Features: "+embedding_type)
@@ -74,8 +73,6 @@ for model_type in model_type_list:
             class_weight='balanced', 
             penalty='none',
             max_iter=2000)
-        if(model_type =="BAYES"):
-            model = MultinomialNB()
 
         model.fit(x_train, y_train)
 
