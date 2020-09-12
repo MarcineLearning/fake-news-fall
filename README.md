@@ -9,3 +9,18 @@ The classifiers we implemented, trained, and tested, are the following:
   - Logistic Regression
   - KNN
   - Deep Learning (FeedForward, Convolutional)
+  
+Every classifier is applied with different features extraction methods:
+  - Gensim Word2Vec embedding trained on the 2 datasets
+  - GloVe embedding (pre-trained and downloaded, link below)
+  - TF-IDF
+
+
+# Usage:
+Code developed in a Conda environment, package installed are found in the file env.txt
+
+-> to run the training + testing demo for the SVM, Log Reg and K-NN Classifiers: run script train_test_classifiers.py
+-> to run the training + testing demo for the deep learning classifiers: run script train_test_nn_classifiers.py
+
+GloVe 6b Embeddings are not included and need to be download at (822 MB download):
+http://nlp.stanford.edu/data/glove.6B.zip
