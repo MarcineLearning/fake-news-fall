@@ -20,6 +20,7 @@ Every classifier is applied with different features extraction methods:
 Code developed in a Conda environment, package installed are found in the file env.txt
 
 -> to run the training + testing demo for the SVM, Log Reg and K-NN Classifiers: run script train_test_classifiers.py
+
 -> to run the training + testing demo for the deep learning classifiers: run script train_test_nn_classifiers.py
 
 GloVe 6b Embeddings are not included and need to be download at (822 MB download):
